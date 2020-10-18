@@ -13,3 +13,15 @@ It is an example of a server being MQTT-client, which can show MQTT messages via
 ## How to use
 
 For propper using, you should connect your MQTT-client with MQTT-broker. Set new MQTT-server IP in *sqlwriter.py*. I used Mosquitto's broker on my PC, so the local server's IP is used.
+
+1) Launch sqlwriter.py
+
+```
+./sqlwriter.py
+```
+
+2) Launch Django web-server
+
+```
+./start_total.py
+```
