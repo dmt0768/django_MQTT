@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wristbands Demo v.0.1</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'core/main_page.css' %}">
+</head>
+<body>
+    <h1>Wristbands Demo v.0.1</h1>
+    <h2>
+        Выберите топик для просмотра:
+    </h2>
+<div>
+{% for topic in Topics %}
+
+    <button id="button" type="button" name="load" value="{{topic.id}}" onclick="load('{{topic.topic_id}}')">Топик {{topic.topic}}</button>
+    <hr><p></p>
+
+{%endfor%}
+</div>
+<textarea id = "texraread" readonly>...</textarea>
+
+
+    
+<script>
+    function load(topic_id) {
+        var xhr = new XMLHttpRequest();
+        var url = new URL('qq://load/');
+        url.searchParams.set('topic_id', topic_id);
+        //window.alert(url.toString().slice(5));
+
+        xhr.onload = function() {
+            var serverResponse = document.getElementById("texraread")
+            serverResponse.innerHTML = this.responseText
+            }
+        xhr.open("GET", url.toString().slice(5), true)
+        xhr.send()
+                    }
+</script>
+</body>
+</html>
