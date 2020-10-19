@@ -28,18 +28,25 @@ def on_message(client, userdata, msg):
 
     print(msg.topic + ":\t" + result)
 
-    writeToDb(time, msg.topic, msg.payload)
+    writeToDb(time, msg.topic, msg.payload.decode("utf-8"))
 
     return
 
 
 def writeToDb(time, topic, message):
-
-    print("Writing to db...")
-    c.execute("INSERT INTO core_messages ( message, time, topic_id_id )" 
-              "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
-    conn.commit()
-    print(topic)
+    if message[0] != '!':
+        print("Writing to db...")
+        c.execute("INSERT INTO core_messages ( message, time, topic_id_id )" 
+                  "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
+        conn.commit()
+        print(topic)
+        print(message[0])
+    else:
+        message = message[1:].split(' ')
+        if message[0] == 'CREATE':
+            print('create', message[1])
+        elif message[0] == 'REMOVE':
+            print('remove', message[1])
 
 
 client = mqtt.Client()
