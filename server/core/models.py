@@ -7,6 +7,6 @@ class Topics(models.Model):
 
 class Messages(models.Model):
     message_id = models.AutoField(primary_key=True)
-    topic_id = models.ForeignKey(Topics, on_delete=models.SET_NULL, null=True)
+    topic_id = models.ForeignKey(Topics, on_delete=models.CASCADE, null=True)
     message = models.CharField(max_length=300)
     time = models.CharField(max_length=300, default='None')
