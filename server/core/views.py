@@ -9,10 +9,10 @@ def main_page(request):
     return render(request, 'core/Main_page.html', {'Topics': Topics_, 'Messages': Messages_})
 
 def load(request):
-    conn = sqlite3.connect('/home/dmitriy/work/demo_wristband/server/db.sqlite3')
+    conn = sqlite3.connect('/home/dmitriy/work/demo_wristbands_git/server/db.sqlite3')
     cursor = conn.cursor()
     topic_id = request.GET['topic_id']
-    data = cursor.execute('SELECT message_id, topic_id_id, message, time FROM core_messages WHERE topic_id_id='+topic_id)
+    data = cursor.execute('SELECT message_id, topic_id, message, time FROM core_messages WHERE topic_id='+topic_id)
     text = '\n'.join(list(map(str, data)))
     topic = cursor.execute('SELECT topic FROM core_topics WHERE topic_id='+topic_id)
     text = 'topic_id=' + topic_id + ';  ' + str(topic.fetchall()) + '\n\n' + text

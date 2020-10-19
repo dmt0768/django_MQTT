@@ -40,14 +40,19 @@ def writeToDb(time, topic, message):
         c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
                   "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
         conn.commit()
-        print(topic)
-        print(message[0])
+        print('Finished!')
     else:
-        message = message[1:].split(' ')
-        if message[0] == 'CREATE':
-            print('create', message[1])
-        elif message[0] == 'REMOVE':
-            print('remove', message[1])
+        message = message[1:]
+        if message == 'CREATE':
+            c.execute("INSERT INTO core_topics ( topic )"
+                      "VALUES(?);", (topic,))
+            conn.commit()
+            print('Created in database', topic)
+        elif message == 'REMOVE':
+            c.execute("DELETE FROM core_topics "
+                      "WHERE topic = ?;", (topic,))
+            conn.commit()
+            print('removed', topic)
 
 
 client = mqtt.Client()
