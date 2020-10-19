@@ -3,6 +3,7 @@
 from time import localtime, strftime
 import paho.mqtt.client as mqtt
 import sqlite3
+#from core.models import Topics, Messages
 
 topic = "#"
 dbFile = "server/db.sqlite3"
@@ -10,6 +11,7 @@ dbFile = "server/db.sqlite3"
 # Connect to database
 conn = sqlite3.connect(dbFile)
 c = conn.cursor()
+
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -35,8 +37,11 @@ def on_message(client, userdata, msg):
 
 def writeToDb(time, topic, message):
     if message[0] != '!':
+        #new_row = Messages(time=time, topic_id=Topics.objects , message=message)
+        #new_row.save()
+        #print(Topics.objects.all())
         print("Writing to db...")
-        c.execute("INSERT INTO core_messages ( message, time, topic_id_id )" 
+        c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
                   "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
         conn.commit()
         print(topic)
