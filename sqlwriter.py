@@ -1,14 +1,16 @@
 #!venv/bin/python3
 
-from time import localtime, strftime
+from time import localtime, strftime, sleep
 import paho.mqtt.client as mqtt
 import sqlite3
 
-topic = "#"
-dbFile = "server/db.sqlite3"
+topic_for_subscribe = "user/#"
+log_topic = 'system/log'
+
+data_base = "server/db.sqlite3"
 
 # Connect to database
-conn = sqlite3.connect(dbFile)
+conn = sqlite3.connect(data_base)
 c = conn.cursor()
 
 
@@ -18,7 +20,7 @@ def on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(topic)
+    client.subscribe(topic_for_subscribe)
 
 
 # The callback for when a PUBLISH message is received from the server.
@@ -34,13 +36,24 @@ def on_message(client, userdata, msg):
     return
 
 
+def on_publish(client, userdata, result):
+    time = strftime("%Y-%m-%d %H:%M:%S", localtime())
+    print("log message is wrote")
+    #writeToDb(time, msg.topic, msg.payload.decode("utf-8"))
+    pass
+
+
 def writeToDb(time, topic, message):
+    #  Запись сообщения
     if message[0] != '!':
         print("Writing to db...")
         c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
                   "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
         conn.commit()
         print('Finished!')
+        client.publish(log_topic, 'Log test')
+
+    # Создание топика, если он отсутствует
     else:
         message = message[1:]
         if message == 'CREATE':
@@ -48,6 +61,8 @@ def writeToDb(time, topic, message):
                       "VALUES(?);", (topic,))
             conn.commit()
             print('Created in database', topic)
+
+    # Удаление топика
         elif message == 'REMOVE':
             c.execute("DELETE FROM core_topics "
                       "WHERE topic = ?;", (topic,))
@@ -58,6 +73,7 @@ def writeToDb(time, topic, message):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
+client.on_publish = on_publish
 
 client.connect("127.0.0.1", 1883, 60)
 
