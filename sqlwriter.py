@@ -43,11 +43,21 @@ def write_to_log(topic, message):
     print('write_to_log')
 
 
+def topic_test(topic_id, on_none=True):
+    temp = topic_id.fetchone()
+    if (temp is None) and on_none:
+        raise sqlite3.Error('Topic not found')
+    if (temp is not None) and not on_none:
+        raise sqlite3.Error('Topic already exists')
+
+
 def writeToDb(time, topic, message):
     try:
+        topic_id = c.execute('SELECT topic_id FROM core_topics WHERE topic = ?', (topic,))
         #  Запись сообщения
         if message[0] != '!':
             print("Writing to db...")
+            topic_test(topic_id)
             c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
                       "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
             conn.commit()
@@ -57,6 +67,7 @@ def writeToDb(time, topic, message):
         else:
             message = message[1:]
             if message == 'CREATE':
+                topic_test(topic_id, on_none=False)
                 c.execute("INSERT INTO core_topics ( topic )"
                           "VALUES(?);", (topic,))
                 conn.commit()
@@ -64,12 +75,14 @@ def writeToDb(time, topic, message):
 
         # Удаление топика
             elif message == 'REMOVE':
+                topic_test(topic_id)
                 c.execute("DELETE FROM core_topics "
                           "WHERE topic = ?;", (topic,))
                 conn.commit()
                 print('removed', topic)
     except sqlite3.Error as err:
         print(err.args)
+        write_to_log(log_topic, str(err.args))
 
 
 client = mqtt.Client()
