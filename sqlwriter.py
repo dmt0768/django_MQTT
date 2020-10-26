@@ -44,29 +44,32 @@ def write_to_log(topic, message):
 
 
 def writeToDb(time, topic, message):
-    #  Запись сообщения
-    if message[0] != '!':
-        print("Writing to db...")
-        c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
-                  "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
-        conn.commit()
-        print('Finished!')
-
-    # Создание топика, если он отсутствует
-    else:
-        message = message[1:]
-        if message == 'CREATE':
-            c.execute("INSERT INTO core_topics ( topic )"
-                      "VALUES(?);", (topic,))
+    try:
+        #  Запись сообщения
+        if message[0] != '!':
+            print("Writing to db...")
+            c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
+                      "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
             conn.commit()
-            print('Created in database', topic)
+            print('Finished!')
 
-    # Удаление топика
-        elif message == 'REMOVE':
-            c.execute("DELETE FROM core_topics "
-                      "WHERE topic = ?;", (topic,))
-            conn.commit()
-            print('removed', topic)
+        # Создание топика, если он отсутствует
+        else:
+            message = message[1:]
+            if message == 'CREATE':
+                c.execute("INSERT INTO core_topics ( topic )"
+                          "VALUES(?);", (topic,))
+                conn.commit()
+                print('Created in database', topic)
+
+        # Удаление топика
+            elif message == 'REMOVE':
+                c.execute("DELETE FROM core_topics "
+                          "WHERE topic = ?;", (topic,))
+                conn.commit()
+                print('removed', topic)
+    except sqlite3.IntegrityError as err:
+        print(err.args)
 
 
 client = mqtt.Client()
