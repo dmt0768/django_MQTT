@@ -68,7 +68,7 @@ def writeToDb(time, topic, message):
                           "WHERE topic = ?;", (topic,))
                 conn.commit()
                 print('removed', topic)
-    except sqlite3.IntegrityError as err:
+    except sqlite3.Error as err:
         print(err.args)
 
 
