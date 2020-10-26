@@ -36,11 +36,11 @@ def on_message(client, userdata, msg):
     return
 
 
-def on_publish(client, userdata, result):
+def write_to_log(topic, message):
+    client.publish(topic, message)
     time = strftime("%Y-%m-%d %H:%M:%S", localtime())
-    print("log message is wrote")
-    #writeToDb(time, msg.topic, msg.payload.decode("utf-8"))
-    pass
+    writeToDb(time, topic, message)
+    print('write_to_log')
 
 
 def writeToDb(time, topic, message):
@@ -51,7 +51,6 @@ def writeToDb(time, topic, message):
                   "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
         conn.commit()
         print('Finished!')
-        client.publish(log_topic, 'Log test')
 
     # Создание топика, если он отсутствует
     else:
@@ -73,7 +72,7 @@ def writeToDb(time, topic, message):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-client.on_publish = on_publish
+# client.on_publish = on_publish
 
 client.connect("127.0.0.1", 1883, 60)
 
