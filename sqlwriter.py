@@ -44,16 +44,16 @@ def write_to_log(topic, message):
 
 
 def topic_test(topic_id, on_none=True):
-    temp = topic_id.fetchone()
-    if (temp is None) and on_none:
+
+    if (topic_id is None) and on_none:
         raise sqlite3.Error('Topic not found')
-    if (temp is not None) and not on_none:
+    if (topic_id is not None) and not on_none:
         raise sqlite3.Error('Topic already exists')
 
 
 def write_to_db(time, topic, message):
     try:
-        topic_id = c.execute('SELECT topic_id FROM core_topics WHERE topic = ?', (topic,))
+        topic_id = c.execute('SELECT topic_id FROM core_topics WHERE topic = ?', (topic,)).fetchone()
         #  Запись сообщения
         if message[0] != '!':
             print("Ordinary message")
