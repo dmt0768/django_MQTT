@@ -59,7 +59,7 @@ def write_to_db(time, topic, message):
             print("Ordinary message")
             topic_test(topic_id)
             c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
-                      "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
+                      "VALUES(?, ?, ?);", (message, time, topic_id[0]))
             conn.commit()
 
         # Создание топика, если он отсутствует
