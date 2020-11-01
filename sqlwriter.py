@@ -4,8 +4,8 @@ from time import localtime, strftime, sleep
 import paho.mqtt.client as mqtt
 import sqlite3
 
-topic_for_subscribe = "user/#"
-log_topic = 'system/log'
+topic_for_subscribe = "#"
+log_topic = 'log'
 
 data_base = "server/db.sqlite3"
 
@@ -30,8 +30,8 @@ def on_message(client, userdata, msg):
     result = (time + "\t" + str(msg.payload))
 
     print(msg.topic + ":\t" + result)
-
-    writeToDb(time, msg.topic, msg.payload.decode("utf-8"))
+    if msg.topic != log_topic:
+        write_to_db(time, msg.topic, msg.payload.decode("utf-8"))
 
     return
 
@@ -39,7 +39,7 @@ def on_message(client, userdata, msg):
 def write_to_log(topic, message):
     client.publish(topic, message)
     time = strftime("%Y-%m-%d %H:%M:%S", localtime())
-    writeToDb(time, topic, message)
+    write_to_db(time, topic, message)
     print('write_to_log')
 
 
@@ -51,17 +51,16 @@ def topic_test(topic_id, on_none=True):
         raise sqlite3.Error('Topic already exists')
 
 
-def writeToDb(time, topic, message):
+def write_to_db(time, topic, message):
     try:
         topic_id = c.execute('SELECT topic_id FROM core_topics WHERE topic = ?', (topic,))
         #  Запись сообщения
         if message[0] != '!':
-            print("Writing to db...")
+            print("Ordinary message")
             topic_test(topic_id)
             c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
                       "VALUES(?, ?, (SELECT topic_id FROM core_topics WHERE topic = ?));", (message, time, topic))
             conn.commit()
-            print('Finished!')
 
         # Создание топика, если он отсутствует
         else:
@@ -79,9 +78,9 @@ def writeToDb(time, topic, message):
                 c.execute("DELETE FROM core_topics "
                           "WHERE topic = ?;", (topic,))
                 conn.commit()
-                print('removed', topic)
+                print('Removed', topic)
     except sqlite3.Error as err:
-        print(err.args)
+        # print(err.args)
         write_to_log(log_topic, str(err.args))
 
 
