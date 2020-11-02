@@ -53,12 +53,12 @@ def topic_test(topic_id, on_none=True):
 
 def write_to_db(time, topic, message):
     try:
-        topic_id = c.execute('SELECT topic_id FROM core_topics WHERE topic = ?', (topic,)).fetchone()
+        topic_id = c.execute('SELECT type_id FROM core_types WHERE type = ?', (topic,)).fetchone()
         #  Запись сообщения
         if message[0] != '!':
             print("Ordinary message")
             topic_test(topic_id)
-            c.execute("INSERT INTO core_messages ( message, time, topic_id )" 
+            c.execute("INSERT INTO core_messages ( message, time, type_id )" 
                       "VALUES(?, ?, ?);", (message, time, topic_id[0]))
             conn.commit()
 
@@ -67,7 +67,7 @@ def write_to_db(time, topic, message):
             message = message[1:]
             if message == 'CREATE':
                 topic_test(topic_id, on_none=False)
-                c.execute("INSERT INTO core_topics ( topic )"
+                c.execute("INSERT INTO core_types ( type )"
                           "VALUES(?);", (topic,))
                 conn.commit()
                 print('Created in database', topic)
@@ -75,8 +75,8 @@ def write_to_db(time, topic, message):
         # Удаление топика
             elif message == 'REMOVE':
                 topic_test(topic_id)
-                c.execute("DELETE FROM core_topics "
-                          "WHERE topic = ?;", (topic,))
+                c.execute("DELETE FROM core_types "
+                          "WHERE type = ?;", (topic,))
                 conn.commit()
                 print('Removed', topic)
     except sqlite3.Error as err:
