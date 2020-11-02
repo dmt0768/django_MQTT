@@ -15,6 +15,6 @@ def load(request):
     type_id = request.GET['topic_id']
     data = cursor.execute('SELECT message_id, type_id, message, time FROM core_messages WHERE type_id='+type_id)
     text = '\n'.join(list(map(str, data)))
-    topic = cursor.execute('SELECT topic FROM core_types WHERE type_id='+type_id)
+    topic = cursor.execute('SELECT type FROM core_types WHERE type_id='+type_id)
     text = 'type_id=' + type_id + ';  ' + str(topic.fetchall()) + '\n\n' + text
     return HttpResponse(text)

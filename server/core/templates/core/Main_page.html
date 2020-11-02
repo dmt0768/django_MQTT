@@ -14,7 +14,7 @@
 <div>
 {% for topic in Topics %}
 
-    <button id="button" type="button" name="load" value="{{topic.id}}" onclick="load('{{topic.topic_id}}')">Топик {{topic.topic}}</button>
+    <button id="button" type="button" name="load" value="{{topic.id}}" onclick="load('{{topic.type_id}}')">Топик {{topic.type}}</button>
     <hr><p></p>
 
 {%endfor%}
