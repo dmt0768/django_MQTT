@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Topics(models.Model):
     topic_id = models.AutoField(primary_key=True)
     topic = models.CharField(max_length=100, unique=True)
