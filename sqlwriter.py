@@ -52,14 +52,16 @@ def topic_test(topic_id, on_none=True):
 
 
 def write_to_db(time, topic, message):
+
     try:
         topic_id = c.execute('SELECT type_id FROM core_types WHERE type = ?', (topic,)).fetchone()
         #  Запись сообщения
         if message[0] != '!':
+            patient_id = topic.split('/')[0]
             print("Ordinary message")
             topic_test(topic_id)
-            c.execute("INSERT INTO core_messages ( message, time, type_id )" 
-                      "VALUES(?, ?, ?);", (message, time, topic_id[0]))
+            c.execute("INSERT INTO core_messages ( message, time, type_id, patient_id )" 
+                      "VALUES(?, ?, ?, ?);", (message, time, topic_id[0], patient_id))
             conn.commit()
 
         # Создание топика, если он отсутствует
