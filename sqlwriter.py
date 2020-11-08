@@ -31,7 +31,11 @@ def on_message(client, userdata, msg):
 
     print(msg.topic + ":\t" + result)
     if msg.topic != log_topic:
-        write_to_db(time, msg.topic, msg.payload.decode("utf-8"))
+        try:
+            write_to_db(time, msg.topic, msg.payload.decode("utf-8"))
+        except UnicodeDecodeError:
+            print('\n\nUnicodeDecodeError\n\n')
+            pass
 
     return
 
@@ -60,8 +64,8 @@ def write_to_db(time, topic, message):
             patient_id = topic.split('/')[0]
             print("Ordinary message")
             topic_test(topic_id)
-            c.execute("INSERT INTO core_messages ( message, time, type_id, patient_id )" 
-                      "VALUES(?, ?, ?, ?);", (message, time, topic_id[0], patient_id))
+            c.execute("INSERT INTO core_messages ( message, time, type_id )" 
+                      "VALUES(?, ?, ?);", (message, time, topic_id[0]))
             conn.commit()
 
         # Создание топика, если он отсутствует
